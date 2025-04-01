@@ -1,11 +1,16 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { PersonListComponent } from './person-list.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.sass'
+  standalone: true,
+  imports: [PersonListComponent],
+  template: `
+    <div class="app">
+      <h1>{{ title }}</h1>
+      <app-person-list />
+    </div>
+  `,
 })
 export class AppComponent {
   title = 'test-rx-angular-non-destructive-hydration';
