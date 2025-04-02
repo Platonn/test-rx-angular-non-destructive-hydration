@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, SimpleChanges } from '@angular/core';
+import { Component, inject, PendingTasks, SimpleChanges } from '@angular/core';
 import { RxFor } from '@rx-angular/template/for';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable, Subject } from 'rxjs';
 import { PersonCardComponent } from './person-card.component';
 import { Person } from './person.interface';
 import { PersonService } from './person.service';
@@ -13,7 +13,13 @@ import { PersonService } from './person.service';
   template: `
     <h2>People</h2>
     <div class="person-list">
-      <ng-container *rxFor="let person of people$; trackBy: trackById">
+      <ng-container
+        *rxFor="
+          let person of people$;
+          trackBy: trackById;
+          renderCallback: itemsRendered
+        "
+      >
         <app-person-card [person]="person" />
       </ng-container>
     </div>
@@ -52,5 +58,14 @@ export class PersonListComponent {
     while (performance.now() - start < 60) {
       // Simulating long synchronous work
     }
+  }
+
+  itemsRendered = new Subject<Person[]>();
+  pendingTasks = inject(PendingTasks);
+
+  ngOnInit() {
+    // Tell Angular to wait with considering the app as "stable"
+    // until RxLet tells that all the items were rendered
+    this.pendingTasks.run(() => firstValueFrom(this.itemsRendered));
   }
 }
